@@ -220,17 +220,7 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.loadingGif.setMovie(self.movie)
         self.movie.start()
 
-        self.movie1 = QtGui.QMovie("templates/img/unlockAll.gif")
-        self.releaseAllLevelingScrewsLabel.setMovie(self.movie1)
 
-        self.movie2 = QtGui.QMovie("templates/img/lockRight.gif")
-        self.turnRightLevelingScrewLabel.setMovie(self.movie2)
-
-        self.movie3 = QtGui.QMovie("templates/img/lockLeft.gif")
-        self.turnLeftLevelingScrewLabel.setMovie(self.movie3)
-
-        self.movie4 = QtGui.QMovie("templates/img/lockCenter.gif")
-        self.turnCenterLevelingScrewLabel.setMovie(self.movie4)
 
     def __init__(self):
         '''
@@ -246,7 +236,6 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.setHomeOffsetBool = False
         self.currentImage = None
         self.currentFile = None
-        self.setActiveExtruder(0)
         self.sanityCheck = sanityCheckThread()
         self.sanityCheck.start()
         self.connect(self.sanityCheck, QtCore.SIGNAL('LOADED'), self.proceed)
@@ -264,7 +253,7 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.setActions()
         self.movie.stop()
         self.stackedWidget.setCurrentWidget(MainWindow.homePage)
-        self.checkResurrection()
+
 
     def setActions(self):
 
@@ -273,17 +262,14 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         self.connect(self.QtSocket, QtCore.SIGNAL('SET_Z_HOME_OFFSET'), self.setZHomeOffset)
         self.connect(self.QtSocket, QtCore.SIGNAL('Z_HOME_OFFSET'), self.setZHomeOffsestUI)
-        self.connect(self.QtSocket, QtCore.SIGNAL('ACTIVE_EXTRUDER'), self.setActiveExtruder)
         self.connect(self.QtSocket, QtCore.SIGNAL('TEMPERATURES'), self.updateTemperature)
         self.connect(self.QtSocket, QtCore.SIGNAL('STATUS'), self.updateStatus)
         self.connect(self.QtSocket, QtCore.SIGNAL('PRINT_STATUS'), self.updatePrintStatus)
-        self.connect(self.QtSocket, QtCore.SIGNAL('FILAMENT_SENSOR_TRIGGERED'), self.filamentSensorTriggeredMessageBox)
         self.connect(self.wifiPasswordLineEdit, QtCore.SIGNAL("clicked()"), lambda: self.startKeyboard(self.wifiPasswordLineEdit.setText))
         self.connect(self.QtSocket, QtCore.SIGNAL('UPDATE_STARTED'), self.softwareUpdateProgress)
         self.connect(self.QtSocket, QtCore.SIGNAL('UPDATE_LOG'), self.softwareUpdateProgressLog)
         self.connect(self.QtSocket, QtCore.SIGNAL('UPDATE_LOG_RESULT'), self.softwareUpdateResult)
         self.connect(self.QtSocket, QtCore.SIGNAL('UPDATE_FAILED'), self.updateFailed)
-        self.connect(self.QtSocket, QtCore.SIGNAL('CONNECTED'), self.checkResurrection)
 
         # Button Events:
 
@@ -314,14 +300,12 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.step2NextButton.clicked.connect(self.step3)
         self.step3NextButton.clicked.connect(self.step4)
         self.step4NextButton.clicked.connect(self.step5)
-        self.step5NextButton.clicked.connect(self.step6)
-        self.step6NextButton.clicked.connect(self.doneStep)
+        self.step5NextButton.clicked.connect(self.doneStep)
         self.step1CancelButton.pressed.connect(self.cancelStep)
         self.step2CancelButton.pressed.connect(self.cancelStep)
         self.step3CancelButton.pressed.connect(self.cancelStep)
         self.step4CancelButton.pressed.connect(self.cancelStep)
         self.step5CancelButton.pressed.connect(self.cancelStep)
-        self.step6CancelButton.pressed.connect(self.cancelStep)
 
         # PrintLocationScreen
         self.printLocationScreenBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.MenuPage))
@@ -373,20 +357,14 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.step10Button.pressed.connect(lambda: self.setStep(10))
         self.homeXYButton.pressed.connect(lambda: octopiclient.home(['x', 'y']))
         self.homeZButton.pressed.connect(lambda: octopiclient.home(['z']))
-        self.toolToggleTemperatureButton.clicked.connect(self.selectToolTemperature)
-        self.toolToggleMotionButton.clicked.connect(self.selectToolMotion)
         self.controlBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.homePage))
-        self.setToolTempButton.pressed.connect(lambda: octopiclient.setToolTemperature({
-            "tool1": self.toolTempSpinBox.value()}) if self.toolToggleTemperatureButton.isChecked() else octopiclient.setToolTemperature(
+        self.setToolTempButton.pressed.connect(lambda: octopiclient.setToolTemperature(
             self.toolTempSpinBox.value()))
-        self.setBedTempButton.pressed.connect(lambda: octopiclient.setBedTemperature(self.bedTempSpinBox.value()))
         self.setFlowRateButton.pressed.connect(lambda: octopiclient.flowrate(self.flowRateSpinBox.value()))
         self.setFeedRateButton.pressed.connect(lambda: octopiclient.feedrate(self.feedRateSpinBox.value()))
-        self.filamentSensorToggleButton.clicked.connect(self.toggleFilamentSensor)
 
         # ChangeFilament rutien
         self.changeFilamentButton.pressed.connect(self.changeFilament)
-        self.toolToggleChangeFilamentButton.clicked.connect(self.selectToolChangeFilament)
         self.changeFilamentBackButton.pressed.connect(self.control)
         self.changeFilamentBackButton2.pressed.connect(self.changeFilamentCancel)
         self.changeFilamentUnloadButton.pressed.connect(lambda: self.unloadFilament())
@@ -421,113 +399,6 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.softwareUpdateBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.settingsPage))
         self.performUpdateButton.pressed.connect(lambda: octopiclient.performSoftwareUpdate())
 
-    ''' +++++++++++++++++++++++++Filament Sensor++++++++++++++++++++++++++++++++++++++ '''
-
-    def filamentSensorTriggeredMessageBox(self):
-        '''
-        Displays a message box alerting the user of a filament error
-        '''
-        self.activeExtruderPrint = self.activeExtruder
-        choice = QtGui.QMessageBox()
-        choice.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        font = QtGui.QFont()
-        QtGui.QInputMethodEvent
-        font.setFamily(_fromUtf8("Gotham"))
-        font.setPointSize(14)
-        font.setBold(False)
-        font.setUnderline(False)
-        font.setWeight(50)
-        font.setStrikeOut(False)
-        choice.setFont(font)
-        choice.setText("Filament Error detected on tool " + str(self.activeExtruder))
-        choice.setIconPixmap(QtGui.QPixmap(_fromUtf8("templates/img/exclamation-mark.png")))
-        # choice.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        # choice.setFixedSize(QtCore.QSize(400, 300))
-        choice.setStandardButtons(QtGui.QMessageBox.Ok)
-        choice.setStyleSheet(_fromUtf8("QPushButton{\n"
-                                       "     border: 1px solid rgb(87, 87, 87);\n"
-                                       "    background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0.188, stop:0 rgba(180, 180, 180, 255), stop:1 rgba(255, 255, 255, 255));\n"
-                                       "height:70px;\n"
-                                       "width: 200px;\n"
-                                       "border-radius:5px;\n"
-                                       "    font: 14pt \"Gotham\";\n"
-                                       "}\n"
-                                       "\n"
-                                       "QPushButton:pressed {\n"
-                                       "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-                                       "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-                                       "}\n"
-                                       "QPushButton:focus {\n"
-                                       "outline: none;\n"
-                                       "}\n"
-
-                                       "\n"
-                                       ""))
-        retval = choice.exec_()
-        if retval == QtGui.QMessageBox.Ok:
-            pass
-
-    def toggleFilamentSensor(self):
-        self.filamentSensorToggleButton.setText(
-            "FilaSensor ON") if self.filamentSensorToggleButton.isChecked() else self.filamentSensorToggleButton.setText(
-            "FilaSensor OFF")
-        if self.filamentSensorToggleButton.isChecked():
-            print "FilaSensor ON"
-            octopiclient.toggleFiamentSensor(2)
-        else:
-            print "FilaSensor OFF"
-            octopiclient.toggleFiamentSensor(-1)
-
-    ''' +++++++++++++++++++++++++Print Resurrection+++++++++++++++++++++++++++++++++++ '''
-
-    def printResurrectionMessageBox(self, file):
-        '''
-        Displays a message box alerting the user of a filament error
-        '''
-        print " went into message box"
-        choice = QtGui.QMessageBox()
-        choice.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        font = QtGui.QFont()
-        QtGui.QInputMethodEvent
-        font.setFamily(_fromUtf8("Gotham"))
-        font.setPointSize(14)
-        font.setBold(False)
-        font.setUnderline(False)
-        font.setWeight(50)
-        font.setStrikeOut(False)
-        choice.setFont(font)
-        choice.setText(file + " Did not finish, would you like to resurrect?")
-        choice.setIconPixmap(QtGui.QPixmap(_fromUtf8("templates/img/exclamation-mark.png")))
-        # choice.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        # choice.setFixedSize(QtCore.QSize(400, 300))
-        choice.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-        choice.setStyleSheet(_fromUtf8("QPushButton{\n"
-                                       "     border: 1px solid rgb(87, 87, 87);\n"
-                                       "    background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0.188, stop:0 rgba(180, 180, 180, 255), stop:1 rgba(255, 255, 255, 255));\n"
-                                       "height:70px;\n"
-                                       "width: 200px;\n"
-                                       "border-radius:5px;\n"
-                                       "    font: 14pt \"Gotham\";\n"
-                                       "}\n"
-                                       "\n"
-                                       "QPushButton:pressed {\n"
-                                       "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
-                                       "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
-                                       "}\n"
-                                       "QPushButton:focus {\n"
-                                       "outline: none;\n"
-                                       "}\n"
-
-                                       "\n"
-                                       ""))
-        retval = choice.exec_()
-        if retval == QtGui.QMessageBox.Yes:
-            octopiclient.resurrect()
-
-    def checkResurrection(self):
-        resurrection = octopiclient.isResurrectionAvailable()
-        if resurrection["status"] == "available":
-            self.printResurrectionMessageBox(resurrection["file"])
 
     ''' +++++++++++++++++++++++++++++++++OTA Update+++++++++++++++++++++++++++++++++++ '''
 
@@ -881,22 +752,20 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
     ''' +++++++++++++++++++++++++++++++++Change Filament+++++++++++++++++++++++++++++++ '''
 
     def unloadFilament(self):
-        octopiclient.setToolTemperature({"tool1": filaments[str(
-            self.changeFilamentComboBox.currentText())]}) if self.activeExtruder == 1 else octopiclient.setToolTemperature(
+        octopiclient.setToolTemperature(
             filaments[str(self.changeFilamentComboBox.currentText())])
         self.stackedWidget.setCurrentWidget(self.changeFilamentProgressPage)
-        self.changeFilamentStatus.setText("Heating Tool {}, Please Wait...".format(str(self.activeExtruder)))
+        self.changeFilamentStatus.setText("Heating , Please Wait...")
         self.changeFilamentNameOperation.setText("Unloading {}".format(str(self.changeFilamentComboBox.currentText())))
         # this flag tells the updateTemperature function that runs every second to update the filament change progress bar as well, and to load or unload after heating done
         self.changeFilamentHeatingFlag = True
         self.loadFlag = False
 
     def loadFilament(self):
-        octopiclient.setToolTemperature({"tool1": filaments[str(
-            self.changeFilamentComboBox.currentText())]}) if self.activeExtruder == 1 else octopiclient.setToolTemperature(
+        octopiclient.setToolTemperature(
             filaments[str(self.changeFilamentComboBox.currentText())])
         self.stackedWidget.setCurrentWidget(self.changeFilamentProgressPage)
-        self.changeFilamentStatus.setText("Heating Tool {}, Please Wait...".format(str(self.activeExtruder)))
+        self.changeFilamentStatus.setText("Heating , Please Wait...")
         self.changeFilamentNameOperation.setText("Loading {}".format(str(self.changeFilamentComboBox.currentText())))
         # this flag tells the updateTemperature function that runs every second to update the filament change progress bar as well, and to load or unload after heating done
         self.changeFilamentHeatingFlag = True
@@ -967,11 +836,9 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
                 octopiclient.startPrint()
         elif self.printerStatusText == "Printing":
             octopiclient.pausePrint()
-            self.activeExtruderPrint = self.activeExtruder
+
 
         elif self.printerStatusText == "Paused":
-            if self.activeExtruderPrint != self.activeExtruder:  # if the active extruder was chanegd between the print, change it back
-                octopiclient.selectTool(self.activeExtruderPrint)
             octopiclient.pausePrint()
 
     def fileListLocal(self):
@@ -1059,7 +926,7 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
                 self.printPreviewSelected.setPixmap(pixmap)
 
             else:
-                self.printPreviewSelected.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/printer2.png")))
+                self.printPreviewSelected.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/thumbnail.png")))
 
 
         except:
@@ -1170,102 +1037,23 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.tool0ActualTemperature.setText(str(temperature['tool0Actual']))  # + unichr(176)
         self.tool0TargetTemperature.setText(str(temperature['tool0Target']))
 
-        if temperature['tool1Target'] == 0:
-            self.tool1TempBar.setMaximum(300)
-            self.tool1TempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
-                                                      "    border-radius: 5px;\n"
-                                                      "    background-color: qlineargradient(spread:pad, x1:0.517, y1:0, x2:0.522, y2:0, stop:0.0336134 rgba(74, 183, 255, 255), stop:1 rgba(53, 173, 242, 255));\n"
-                                                      "}\n"
-                                                      "\n"
-                                                      "QProgressBar {\n"
-                                                      "    border: 1px solid white;\n"
-                                                      "    border-radius: 5px;\n"
-                                                      "}\n"
-                                                      ""))
-        elif temperature['tool1Actual'] <= temperature['tool0Target']:
-            self.tool1TempBar.setMaximum(temperature['tool0Target'])
-            self.tool1TempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
-                                                      "\n"
-                                                      "    background-color: qlineargradient(spread:pad, x1:0.492, y1:0, x2:0.487, y2:0, stop:0 rgba(255, 28, 35, 255), stop:1 rgba(255, 68, 74, 255));\n"
-                                                      "    border-radius: 5px;\n"
-                                                      "\n"
-                                                      "}\n"
-                                                      "\n"
-                                                      "QProgressBar {\n"
-                                                      "    border: 1px solid white;\n"
-                                                      "    border-radius: 5px;\n"
-                                                      "}\n"
-                                                      ""))
-        else:
-            self.tool1TempBar.setMaximum(temperature['tool1Actual'])
-        self.tool1TempBar.setValue(temperature['tool1Actual'])
-        self.tool1ActualTemperature.setText(str(temperature['tool1Actual']))  # + unichr(176)
-        self.tool1TargetTemperature.setText(str(temperature['tool1Target']))
-
-        if temperature['bedTarget'] == 0:
-            self.bedTempBar.setMaximum(150)
-            self.bedTempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
-                                                    "    border-radius: 5px;\n"
-                                                    "    background-color: qlineargradient(spread:pad, x1:0.517, y1:0, x2:0.522, y2:0, stop:0.0336134 rgba(74, 183, 255, 255), stop:1 rgba(53, 173, 242, 255));\n"
-                                                    "}\n"
-                                                    "\n"
-                                                    "QProgressBar {\n"
-                                                    "    border: 1px solid white;\n"
-                                                    "    border-radius: 5px;\n"
-                                                    "}\n"
-                                                    ""))
-        elif temperature['bedActual'] <= temperature['bedTarget']:
-            self.bedTempBar.setMaximum(temperature['bedTarget'])
-            self.bedTempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
-                                                    "\n"
-                                                    "    background-color: qlineargradient(spread:pad, x1:0.492, y1:0, x2:0.487, y2:0, stop:0 rgba(255, 28, 35, 255), stop:1 rgba(255, 68, 74, 255));\n"
-                                                    "    border-radius: 5px;\n"
-                                                    "\n"
-                                                    "}\n"
-                                                    "\n"
-                                                    "QProgressBar {\n"
-                                                    "    border: 1px solid white;\n"
-                                                    "    border-radius: 5px;\n"
-                                                    "}\n"
-                                                    ""))
-        else:
-            self.bedTempBar.setMaximum(temperature['bedActual'])
-        self.bedTempBar.setValue(temperature['bedActual'])
-        self.bedActualTemperatute.setText(str(temperature['bedActual']))  # + unichr(176))
-        self.bedTargetTemperature.setText(str(temperature['bedTarget']))  # + unichr(176))
-
         # updates the progress bar on the change filament screen
         if self.changeFilamentHeatingFlag:
-            if self.activeExtruder == 0:
-                if temperature['tool0Target'] == 0:
-                    self.changeFilamentProgress.setMaximum(300)
-                elif temperature['tool0Target'] - temperature['tool0Actual'] > 1:
-                    self.changeFilamentProgress.setMaximum(temperature['tool0Target'])
+            if temperature['tool0Target'] == 0:
+                self.changeFilamentProgress.setMaximum(300)
+            elif temperature['tool0Target'] - temperature['tool0Actual'] > 1:
+                self.changeFilamentProgress.setMaximum(temperature['tool0Target'])
+            else:
+                self.changeFilamentProgress.setMaximum(temperature['tool0Actual'])
+                self.changeFilamentHeatingFlag = False
+                if self.loadFlag:
+                    self.stackedWidget.setCurrentWidget(self.changeFilamentExtrudePage)
                 else:
-                    self.changeFilamentProgress.setMaximum(temperature['tool0Actual'])
-                    self.changeFilamentHeatingFlag = False
-                    if self.loadFlag:
-                        self.stackedWidget.setCurrentWidget(self.changeFilamentExtrudePage)
-                    else:
-                        self.stackedWidget.setCurrentWidget(self.changeFilamentRetractPage)
-                        octopiclient.extrude(5) # extrudes some amount of filament to prevent plugging
+                    self.stackedWidget.setCurrentWidget(self.changeFilamentRetractPage)
+                    octopiclient.extrude(10) # extrudes some amount of filament to prevent plugging
 
-                self.changeFilamentProgress.setValue(temperature['tool0Actual'])
-            elif self.activeExtruder == 1:
-                if temperature['tool1Target'] == 0:
-                    self.changeFilamentProgress.setMaximum(300)
-                elif temperature['tool1Target'] - temperature['tool1Actual'] > 1:
-                    self.changeFilamentProgress.setMaximum(temperature['tool1Target'])
-                else:
-                    self.changeFilamentProgress.setMaximum(temperature['tool1Actual'])
-                    self.changeFilamentHeatingFlag = False
-                    if self.loadFlag:
-                        self.stackedWidget.setCurrentWidget(self.changeFilamentExtrudePage)
-                    else:
-                        self.stackedWidget.setCurrentWidget(self.changeFilamentRetractPage)
-                        octopiclient.extrude(5) # extrudes some amount of filament to prevent plugging
+            self.changeFilamentProgress.setValue(temperature['tool0Actual'])
 
-                self.changeFilamentProgress.setValue(temperature['tool1Actual'])
 
     def updatePrintStatus(self, file):
         '''
@@ -1380,77 +1168,11 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
             self.menuCaliberateButton.setDisabled(False)
             self.menuPrintButton.setDisabled(False)
 
-    ''' ++++++++++++++++++++++++++++Active Extruder/Tool Change++++++++++++++++++++++++ '''
-
-    def selectToolChangeFilament(self):
-        '''
-        Selects the tool whose temperature needs to be changed. It accordingly changes the button text. it also updates the status of the other toggle buttons
-        '''
-
-        if self.toolToggleChangeFilamentButton.isChecked():
-            self.setActiveExtruder(1)
-            octopiclient.selectTool(1)
-        else:
-            self.setActiveExtruder(0)
-            octopiclient.selectTool(0)
-
-    def selectToolMotion(self):
-        '''
-        Selects the tool whose temperature needs to be changed. It accordingly changes the button text. it also updates the status of the other toggle buttons
-        '''
-
-        if self.toolToggleMotionButton.isChecked():
-            self.setActiveExtruder(1)
-            octopiclient.selectTool(1)
-
-        else:
-            self.setActiveExtruder(0)
-            octopiclient.selectTool(0)
-
-    def selectToolTemperature(self):
-        '''
-        Selects the tool whose temperature needs to be changed. It accordingly changes the button text.it also updates the status of the other toggle buttons
-        '''
-        # self.toolToggleTemperatureButton.setText(
-        #     "1") if self.toolToggleTemperatureButton.isChecked() else self.toolToggleTemperatureButton.setText("0")
-        if self.toolToggleTemperatureButton.isChecked():
-            print "extruder 1 Temperature"
-            self.toolTempSpinBox.setProperty("value", float(self.tool1TargetTemperature.text()))
-        else:
-            print "extruder 0 Temperature"
-            self.toolTempSpinBox.setProperty("value", float(self.tool0TargetTemperature.text()))
-
-    def setActiveExtruder(self, activeNozzle):
-        activeNozzle = int(activeNozzle)
-        if activeNozzle == 0:
-            self.tool0Label.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/activeNozzle.png")))
-            self.tool1Label.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/Nozzle.png")))
-            self.toolToggleChangeFilamentButton.setChecked(False)
-            # self.toolToggleChangeFilamentButton.setText("0")
-            self.toolToggleMotionButton.setChecked(False)
-            self.toolToggleMotionButton.setText("0")
-            self.activeExtruder = 0
-        elif activeNozzle == 1:
-            self.tool0Label.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/Nozzle.png")))
-            self.tool1Label.setPixmap(QtGui.QPixmap(_fromUtf8("templates/img/activeNozzle.png")))
-            self.toolToggleChangeFilamentButton.setChecked(True)
-            # self.toolToggleChangeFilamentButton.setText("1")
-            self.toolToggleMotionButton.setChecked(True)
-            self.toolToggleMotionButton.setText("1")
-            self.activeExtruder = 1
-
-            # set button states
-            # set octoprint if mismatch
-
     ''' +++++++++++++++++++++++++++++++++Control Screen+++++++++++++++++++++++++++++++ '''
 
     def control(self):
         self.stackedWidget.setCurrentWidget(self.controlPage)
-        if self.toolToggleTemperatureButton.isChecked():
-            self.toolTempSpinBox.setProperty("value", float(self.tool1TargetTemperature.text()))
-        else:
-            self.toolTempSpinBox.setProperty("value", float(self.tool0TargetTemperature.text()))
-        self.bedTempSpinBox.setProperty("value", float(self.bedTargetTemperature.text()))
+        self.toolTempSpinBox.setProperty("value", float(self.tool0TargetTemperature.text()))
 
     def setStep(self, stepRate):
         '''
@@ -1480,11 +1202,11 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         Turns all heaters and fans off
         '''
         octopiclient.gcode(command='M107')
-        octopiclient.setToolTemperature({"tool0": 0, "tool1": 0})
+        octopiclient.setToolTemperature({"tool0": 0})
         # octopiclient.setToolTemperature({"tool0": 0})
-        octopiclient.setBedTemperature(0)
+
         self.toolTempSpinBox.setProperty("value", 0)
-        self.bedTempSpinBox.setProperty("value", 0)
+
 
     ''' +++++++++++++++++++++++++++++++++++Caliberation++++++++++++++++++++++++++++++++ '''
 
@@ -1620,8 +1342,8 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         self.stackedWidget.setCurrentWidget(self.step1Page)
         octopiclient.gcode(command='M206 Z0') # Sets Z home offset to 0
-
-        octopiclient.jog(x=125, y=125, z=35, absolute=True, speed=1500)
+        octopiclient.home(['x', 'y', 'z'])
+        octopiclient.jog(x=90, y=90, z=15, absolute=True, speed=1500)
 
     def step2(self):
         '''
@@ -1629,7 +1351,8 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         :return:
         '''
         self.stackedWidget.setCurrentWidget(self.step2Page)
-        self.movie1.start()
+        octopiclient.jog(x=87, y=188, absolute=True)
+        octopiclient.jog(z=0, absolute=True)
 
     def step3(self):
         '''
@@ -1637,12 +1360,10 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         Then asks user to tighten right leveling screw
         '''
         self.stackedWidget.setCurrentWidget(self.step3Page)
-        octopiclient.jog(x=246.13, y=22.0, absolute=True)
+        octopiclient.jog(z=15, absolute=True)
+        octopiclient.jog(x=159, y=14, absolute=True)
         octopiclient.jog(z=0, absolute=True)
 
-        self.movie1.stop()
-
-        self.movie2.start()
 
     def step4(self):
         '''
@@ -1652,12 +1373,10 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         # sent twice for some reason
         self.stackedWidget.setCurrentWidget(self.step4Page)
-        octopiclient.jog(z=10, absolute=True)
-        octopiclient.jog(x=56.76, y=22, absolute=True)
+        octopiclient.jog(z=15, absolute=True)
+        octopiclient.jog(x=14, y=14, absolute=True)
         octopiclient.jog(z=0, absolute=True)
-        self.movie2.stop()
 
-        self.movie3.start()
 
     def step5(self):
         '''
@@ -1667,23 +1386,10 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         '''
         # sent twice for some reason
         self.stackedWidget.setCurrentWidget(self.step5Page)
-        octopiclient.jog(z=10, absolute=True)
-        octopiclient.jog(x=142.45, y=186.94, absolute=True)
-        octopiclient.jog(z=0, absolute=True)
-        self.movie3.stop()
+        octopiclient.jog(z=15, absolute=True)
+        octopiclient.jog(x=90, y=90, absolute=True)
 
-        self.movie4.start()
 
-    def step6(self):
-        '''
-        sets z = 5, goes to front position for nozzle height adjustment, then sets z=2
-        :return:
-        '''
-        self.stackedWidget.setCurrentWidget(self.step6Page)
-        octopiclient.jog(z=10, absolute=True)
-        octopiclient.jog(x=142, y=0, absolute=True)
-        octopiclient.jog(z=2, absolute=True)
-        self.movie4.stop()
 
     def doneStep(self):
         '''
@@ -1691,7 +1397,6 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         :return:
         '''
         self.stackedWidget.setCurrentWidget(self.caliberatePage)
-
         octopiclient.gcode(command='M501') # restore eeprom settings to get Z home offset back
         octopiclient.home(['z'])
         octopiclient.home(['x', 'y'])
@@ -1699,10 +1404,7 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
 
     def cancelStep(self):
         octopiclient.gcode(command='M501') # restore eeprom settings
-        self.movie1.stop()
-        self.movie2.stop()
-        self.movie3.stop()
-        self.movie4.stop()
+
         self.stackedWidget.setCurrentWidget(self.caliberatePage)
 
     ''' +++++++++++++++++++++++++++++++++++Keyboard++++++++++++++++++++++++++++++++ '''
@@ -1782,11 +1484,7 @@ class QtWebsocket(QtCore.QThread):
             if data["event"]["type"] == "Connected":
                 self.emit(QtCore.SIGNAL('CONNECTED'))
         if "plugin" in data:
-            if data["plugin"]["plugin"] == 'Julia3GFilamentSensor':
-                if data["plugin"]["data"]["status_value"] == 'error':
-                    self.emit(QtCore.SIGNAL('FILAMENT_SENSOR_TRIGGERED'))
-
-            elif data["plugin"]["plugin"] == 'softwareupdate':
+            if data["plugin"]["plugin"] == 'softwareupdate':
                 if data["plugin"]["data"]["type"] == "updating":
                     self.emit(QtCore.SIGNAL('UPDATE_STARTED'), data["plugin"]["data"]["data"])
                 elif data["plugin"]["data"]["type"] == "loglines":
@@ -1800,8 +1498,6 @@ class QtWebsocket(QtCore.QThread):
 
             if data["current"]["messages"]:
                 for item in data["current"]["messages"]:
-                    if 'Active Extruder' in item:  # can get thris throught the positionUpdate event
-                        self.emit(QtCore.SIGNAL('ACTIVE_EXTRUDER'), item[-1])
                     if 'M206' in item:
                         self.emit(QtCore.SIGNAL('Z_HOME_OFFSET'), item[item.index('Z') + 1:].split(' ', 1)[0])
                     if 'Count' in item:  # can get thris throught the positionUpdate event
@@ -1818,23 +1514,12 @@ class QtWebsocket(QtCore.QThread):
                 self.emit(QtCore.SIGNAL('PRINT_STATUS'), None)
 
             if data["current"]["temps"]:
-                if "tool1" not in data["current"]["temps"][0]:
-                    data["current"]["temps"][0]["tool1"] = {"actual" : 0}
-                    data["current"]["temps"][0]["tool1"] = {"target" : 0}
                 try:
                     temperatures = {'tool0Actual': data["current"]["temps"][0]["tool0"]["actual"],
-                                    'tool0Target': data["current"]["temps"][0]["tool0"]["target"],
-                                    'tool1Actual': data["current"]["temps"][0]["tool1"]["actual"],
-                                    'tool1Target': data["current"]["temps"][0]["tool1"]["target"],
-                                    'bedActual': data["current"]["temps"][0]["bed"]["actual"],
-                                    'bedTarget': data["current"]["temps"][0]["bed"]["target"]}
+                                    'tool0Target': data["current"]["temps"][0]["tool0"]["target"]}
                 except KeyError:
                     temperatures = {'tool0Actual': data["current"]["temps"][0]["tool0"]["actual"],
-                                    'tool0Target': data["current"]["temps"][0]["tool0"]["target"],
-                                    'tool1Actual': 0,
-                                    'tool1Target': 0,
-                                    'bedActual': data["current"]["temps"][0]["bed"]["actual"],
-                                    'bedTarget': data["current"]["temps"][0]["bed"]["target"]}
+                                    'tool0Target': data["current"]["temps"][0]["tool0"]["target"]}
                 self.emit(QtCore.SIGNAL('TEMPERATURES'), temperatures)
 
     def on_open(self, ws):
@@ -1870,7 +1555,7 @@ class sanityCheckThread(QtCore.QThread):
                 result = result.split('\n')  # each ssid and pass from an item in a list ([ssid pass,ssid paas])
                 result = [s.strip() for s in result]
                 for line in result:
-                    if 'FTDI' in line:
+                    if 'ch341-uart' in line:
                         self.MKSPort = line[line.index('ttyUSB'):line.index('ttyUSB') + 7]
                         print self.MKSPort
 
