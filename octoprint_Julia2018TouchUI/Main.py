@@ -11,7 +11,7 @@
  * Licence: AGPLv3
 *************************************************************************
 '''
-
+raspberryPi= False
 from PyQt4 import QtCore, QtGui
 import mainGUI
 import keyBoardFunc
@@ -32,6 +32,7 @@ import os
 import serial
 import io
 
+if
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)  # Use the board numbering scheme
