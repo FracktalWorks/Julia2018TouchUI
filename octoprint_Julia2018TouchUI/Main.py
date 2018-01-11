@@ -360,6 +360,8 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.controlBackButton.pressed.connect(lambda: self.stackedWidget.setCurrentWidget(self.homePage))
         self.setToolTempButton.pressed.connect(lambda: octopiclient.setToolTemperature(
             self.toolTempSpinBox.value()))
+        self.setBedTempButton.pressed.connect(lambda: octopiclient.setBedTemperature(self.bedTempSpinBox.value()))
+
         self.setFlowRateButton.pressed.connect(lambda: octopiclient.flowrate(self.flowRateSpinBox.value()))
         self.setFeedRateButton.pressed.connect(lambda: octopiclient.feedrate(self.feedRateSpinBox.value()))
 
@@ -1036,6 +1038,38 @@ class MainUiClass(QtGui.QMainWindow, mainGUI.Ui_MainWindow):
         self.tool0TempBar.setValue(temperature['tool0Actual'])
         self.tool0ActualTemperature.setText(str(temperature['tool0Actual']))  # + unichr(176)
         self.tool0TargetTemperature.setText(str(temperature['tool0Target']))
+
+        if temperature['bedTarget'] == 0:
+            self.bedTempBar.setMaximum(150)
+            self.bedTempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
+                                                    "    border-radius: 5px;\n"
+                                                    "    background-color: qlineargradient(spread:pad, x1:0.517, y1:0, x2:0.522, y2:0, stop:0.0336134 rgba(74, 183, 255, 255), stop:1 rgba(53, 173, 242, 255));\n"
+                                                    "}\n"
+                                                    "\n"
+                                                    "QProgressBar {\n"
+                                                    "    border: 1px solid white;\n"
+                                                    "    border-radius: 5px;\n"
+                                                    "}\n"
+                                                    ""))
+        elif temperature['bedActual'] <= temperature['bedTarget']:
+            self.bedTempBar.setMaximum(temperature['bedTarget'])
+            self.bedTempBar.setStyleSheet(_fromUtf8("QProgressBar::chunk {\n"
+                                                    "\n"
+                                                    "    background-color: qlineargradient(spread:pad, x1:0.492, y1:0, x2:0.487, y2:0, stop:0 rgba(255, 28, 35, 255), stop:1 rgba(255, 68, 74, 255));\n"
+                                                    "    border-radius: 5px;\n"
+                                                    "\n"
+                                                    "}\n"
+                                                    "\n"
+                                                    "QProgressBar {\n"
+                                                    "    border: 1px solid white;\n"
+                                                    "    border-radius: 5px;\n"
+                                                    "}\n"
+                                                    ""))
+        else:
+            self.bedTempBar.setMaximum(temperature['bedActual'])
+        self.bedTempBar.setValue(temperature['bedActual'])
+        self.bedActualTemperatute.setText(str(temperature['bedActual']))  # + unichr(176))
+        self.bedTargetTemperature.setText(str(temperature['bedTarget']))  # + unichr(176))
 
         # updates the progress bar on the change filament screen
         if self.changeFilamentHeatingFlag:

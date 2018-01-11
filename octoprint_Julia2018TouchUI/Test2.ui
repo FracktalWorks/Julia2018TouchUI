@@ -173,7 +173,7 @@ QStatusBar::item {
 background-color: rgb(40, 40, 40);</string>
     </property>
     <property name="currentIndex">
-     <number>17</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="loadingPage">
      <widget class="QLabel" name="LoadingLabel">
@@ -395,7 +395,7 @@ QPushButton:focus {
      <widget class="QLabel" name="FileNameLabel">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>170</y>
         <width>70</width>
         <height>21</height>
@@ -419,7 +419,7 @@ QPushButton:focus {
      <widget class="QLabel" name="printTimeLabel">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>190</y>
         <width>111</width>
         <height>21</height>
@@ -443,7 +443,7 @@ QPushButton:focus {
      <widget class="QLabel" name="fileName">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>40</x>
         <y>170</y>
         <width>211</width>
         <height>21</height>
@@ -472,7 +472,7 @@ background-color: rgba(255, 255, 255, 0);</string>
      <widget class="QLabel" name="printTime">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>100</x>
         <y>190</y>
         <width>181</width>
         <height>21</height>
@@ -495,7 +495,7 @@ background-color: rgba(255, 255, 255, 0);</string>
      <widget class="QLabel" name="timeLeftLabel">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>210</y>
         <width>181</width>
         <height>21</height>
@@ -975,6 +975,164 @@ background-color: rgba(255, 255, 255, 0);</string>
        <string/>
       </property>
      </widget>
+     <widget class="QLabel" name="celciusLabel_2">
+      <property name="geometry">
+       <rect>
+        <x>235</x>
+        <y>40</y>
+        <width>70</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Gotham Medium</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+   color:  white;
+background-color: rgba(255, 255, 255, 0);</string>
+      </property>
+      <property name="text">
+       <string>°C</string>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="bedTempBar">
+      <property name="geometry">
+       <rect>
+        <x>205</x>
+        <y>50</y>
+        <width>16</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QProgressBar::chunk {
+    border-radius: 5px;
+	background-color: qlineargradient(spread:pad, x1:0.517, y1:0, x2:0.522, y2:0, stop:0.0336134 rgba(74, 183, 255, 255), stop:1 rgba(53, 173, 242, 255));
+}
+
+QProgressBar {
+    border: 1px solid white;
+    border-radius: 5px;
+}
+</string>
+      </property>
+      <property name="maximum">
+       <number>300</number>
+      </property>
+      <property name="value">
+       <number>10</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="textVisible">
+       <bool>false</bool>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="format">
+       <string>%v</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="bedActualTemperatute">
+      <property name="geometry">
+       <rect>
+        <x>155</x>
+        <y>110</y>
+        <width>70</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Gotham Medium</family>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+   color:  white;
+background-color: rgba(0, 0, 0, 0);</string>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="bedTargetTemperature">
+      <property name="geometry">
+       <rect>
+        <x>155</x>
+        <y>40</y>
+        <width>70</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Gotham Medium</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+   color:  white;
+background-color: rgba(255, 255, 255, 0);</string>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="bedLabel">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>65</y>
+        <width>41</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Gotham Medium</family>
+        <pointsize>14</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+   color:  white;
+background-color: rgba(255, 255, 255, 0);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>../../Julia3GTouchUI/octoprint_Julia3GTouchUI/templates/img/bed.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
      <zorder>line</zorder>
      <zorder>printPreviewMain</zorder>
      <zorder>statusBar</zorder>
@@ -996,6 +1154,11 @@ background-color: rgba(255, 255, 255, 0);</string>
      <zorder>printerStatus</zorder>
      <zorder>printerStatusColour</zorder>
      <zorder>celciusLabel</zorder>
+     <zorder>celciusLabel_2</zorder>
+     <zorder>bedTempBar</zorder>
+     <zorder>bedActualTemperatute</zorder>
+     <zorder>bedTargetTemperature</zorder>
+     <zorder>bedLabel</zorder>
     </widget>
     <widget class="QWidget" name="MenuPage">
      <widget class="QPushButton" name="menuBackButton">
@@ -4567,9 +4730,9 @@ QPushButton:default {
      <widget class="QListWidget" name="fileListWidget">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>0</y>
-        <width>311</width>
+        <width>321</width>
         <height>321</height>
        </rect>
       </property>
@@ -6473,7 +6636,7 @@ QPushButton:focus {
        <widget class="QLabel" name="toolLabel">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>0</x>
           <y>20</y>
           <width>70</width>
           <height>21</height>
@@ -6699,7 +6862,7 @@ QPushButton:focus {
        <widget class="QSpinBox" name="toolTempSpinBox">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>0</x>
           <y>60</y>
           <width>161</width>
           <height>131</height>
@@ -6794,7 +6957,7 @@ QSpinBox::down-button:pressed {
        <widget class="QPushButton" name="setToolTempButton">
         <property name="geometry">
          <rect>
-          <x>279</x>
+          <x>159</x>
           <y>60</y>
           <width>71</width>
           <height>130</height>
@@ -6846,12 +7009,188 @@ QPushButton:focus {
          </size>
         </property>
        </widget>
+       <widget class="QSpinBox" name="bedTempSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>241</x>
+          <y>58</y>
+          <width>161</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Gotham</family>
+          <pointsize>20</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QSpinBox {
+    padding-right: 5px; /* make room for the arrows */
+	color: rgb(255, 255, 255);
+	background-color: rgba(255, 255, 255, 0);
+   
+}
+QSpinBox ::text:selected {
+	background-color: rgb(255, 146, 57);
+   
+}
+QSpinBox::up-button {
+     border: 1px solid rgb(87, 87, 87);
+
+border-top-left-radius: 15px;
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0.188, stop:0 rgba(180, 180, 180, 255), stop:1 rgba(255, 255, 255, 255));
+    width: 60px;
+     height: 61px;
+    padding: 2px;
+}
+
+QSpinBox::up-arrow { image: url(./templates/img/arrows.png);
+    width: 40px;
+     height: 40px;
+padding: 5px; }
+
+
+
+QSpinBox::up-button:pressed {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
+}
+
+
+QSpinBox::down-button {
+     border: 1px solid rgb(87, 87, 87);
+border-bottom-left-radius: 15px;
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0.188, stop:0 rgba(180, 180, 180, 255), stop:1 rgba(255, 255, 255, 255));
+    width: 60px;
+     height: 61px;
+    padding: 2px;
+}
+
+QSpinBox::down-arrow {image: url(./templates/img/arrows-5.png);
+    width: 40px;
+     height: 40px;
+padding: 5px;
+}
+
+QSpinBox::down-button:pressed {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
+
+}
+
+</string>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
+        </property>
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string>°C</string>
+        </property>
+        <property name="maximum">
+         <number>150</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="bedLabel_2">
+        <property name="geometry">
+         <rect>
+          <x>341</x>
+          <y>18</y>
+          <width>70</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Gotham Light</family>
+          <pointsize>14</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="text">
+         <string>Bed:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="setBedTempButton">
+        <property name="geometry">
+         <rect>
+          <x>400</x>
+          <y>60</y>
+          <width>71</width>
+          <height>128</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Gotham</family>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+     border: 1px solid rgb(87, 87, 87);
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0.188, stop:0 rgba(180, 180, 180, 255), stop:1 rgba(255, 255, 255, 255));
+border-top-right-radius: 15px;
+border-bottom-right-radius: 15px;
+
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
+}
+
+QPushButton:flat {
+    border: none; /* no border for a flat push button */
+}
+
+QPushButton:default {
+    border-color: navy; /* make the default button prominent */
+}
+
+QPushButton:focus {
+	outline: none;
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../../Julia3GTouchUI/octoprint_Julia3GTouchUI/templates/img/verification-mark.png</normaloff>../../Julia3GTouchUI/octoprint_Julia3GTouchUI/templates/img/verification-mark.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>50</width>
+          <height>50</height>
+         </size>
+        </property>
+       </widget>
        <zorder>toolLabel</zorder>
        <zorder>cooldownButton</zorder>
        <zorder>fanOffButton</zorder>
        <zorder>fanOnButton</zorder>
        <zorder>setToolTempButton</zorder>
        <zorder>toolTempSpinBox</zorder>
+       <zorder>bedTempSpinBox</zorder>
+       <zorder>bedLabel_2</zorder>
+       <zorder>setBedTempButton</zorder>
       </widget>
       <widget class="QWidget" name="motionTab">
        <attribute name="icon">
@@ -8002,7 +8341,7 @@ QPushButton:focus {
        <widget class="QToolButton" name="changeFilamentButton">
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>110</x>
           <y>180</y>
           <width>241</width>
           <height>91</height>
